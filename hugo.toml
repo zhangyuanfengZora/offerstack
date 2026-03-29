@@ -1,4 +1,4 @@
-baseURL = "https://offerstack.dev/"
+baseURL = "https://yourdomain.com/"
 languageCode = "zh-cn"
 title = "OfferStack"
 theme = "hextra"
