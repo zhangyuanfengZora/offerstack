@@ -1,7 +1,10 @@
 name: Deploy to GitHub Pages
 
 on:
-  workflow_dispatch:   # 仅手动触发，Cloudflare Pages 负责自动部署
+  push:
+    branches:
+      - master
+  workflow_dispatch:
 
 permissions:
   contents: read
