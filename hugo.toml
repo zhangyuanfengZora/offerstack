@@ -1,0 +1,90 @@
+baseURL = "https://offerstack.dev/"
+languageCode = "zh-cn"
+title = "OfferStack"
+theme = "hextra"
+
+enableRobotsTXT = true
+enableGitInfo = true
+
+[params]
+  description = "Go · MySQL · Redis · 计算机基础 · AI专题 · 项目实战"
+  images = []
+
+  [params.navbar]
+    displayTitle = true
+    displayLogo = true
+    [params.navbar.logo]
+      path = "images/logo.svg"
+      dark = "images/logo-dark.svg"
+      link = "/"
+      width = 40
+      height = 40
+
+  [params.page]
+    width = "normal"
+
+  [params.footer]
+    displayCopyright = true
+    displayPoweredBy = true
+    width = "normal"
+
+  displayUpdatedDate = true
+  dateFormat = "2006-01-02"
+
+  [params.search]
+    enable = true
+    type = "flexsearch"
+    [params.search.flexsearch]
+      index = "content"
+
+  [params.highlight]
+    copy = true
+    copyNotation = "icon"
+
+  [params.comments]
+    enable = false
+
+# 顶部导航菜单
+[[menu.main]]
+  name = "Go 语言"
+  pageRef = "/go"
+  weight = 1
+
+[[menu.main]]
+  name = "MySQL"
+  pageRef = "/mysql"
+  weight = 2
+
+[[menu.main]]
+  name = "Redis"
+  pageRef = "/redis"
+  weight = 3
+
+[[menu.main]]
+  name = "计算机基础"
+  pageRef = "/cs"
+  weight = 4
+
+[[menu.main]]
+  name = "AI 专题"
+  pageRef = "/ai"
+  weight = 5
+
+[[menu.main]]
+  name = "项目实战"
+  pageRef = "/project"
+  weight = 6
+
+[[menu.main]]
+  name = "GitHub"
+  url = "https://github.com"
+  weight = 7
+  [menu.main.params]
+    icon = "github"
+
+[markup]
+  [markup.highlight]
+    noClasses = false
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
