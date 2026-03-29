@@ -1,7 +1,9 @@
 ---
 title: Go 语言
 weight: 1
-next: /go/basic
+next: /go/basic/slice
+cascade:
+  type: docs
 ---
 
 ## 📌 章节概览

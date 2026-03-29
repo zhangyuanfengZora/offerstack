@@ -3,7 +3,8 @@ title: RAG 原理与实践
 weight: 1
 ---
 
-## 什么是 RAG？
+## 什么是 RAG？   
+
 
 **RAG（Retrieval-Augmented Generation）** 检索增强生成，是解决 LLM 知识局限性的核心技术。
 

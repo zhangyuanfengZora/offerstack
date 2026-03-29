@@ -2,6 +2,8 @@
 title: AI 专题
 weight: 5
 next: /ai/rag
+cascade:
+  type: docs
 ---
 
 ## 📌 章节概览

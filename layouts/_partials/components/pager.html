@@ -1,0 +1,56 @@
+{{/* 自定义上下页导航 */}}
+
+{{- $reversePagination := .Store.Get "reversePagination" | default false -}}
+
+{{- $prev := cond $reversePagination .PrevInSection .NextInSection -}}
+{{- $next := cond $reversePagination .NextInSection .PrevInSection -}}
+
+{{- if eq .Params.prev false }}
+  {{- if $reversePagination }}{{ $next = false }}{{ else }}{{ $prev = false }}{{ end -}}
+{{ else }}
+  {{- with .Params.prev -}}
+    {{- with $.Site.GetPage . -}}
+      {{- if $reversePagination }}{{ $next = . }}{{ else }}{{ $prev = . }}{{ end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if eq .Params.next false }}
+  {{- if $reversePagination }}{{ $prev = false }}{{ else }}{{ $next = false }}{{ end -}}
+{{ else }}
+  {{- with .Params.next -}}
+    {{- with $.Site.GetPage . -}}
+      {{- if $reversePagination }}{{ $prev = . }}{{ else }}{{ $next = . }}{{ end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if or $prev $next -}}
+<div class="os-pager hx:print:hidden">
+  {{- if $prev -}}
+    {{- $linkTitle := partial "utils/title" $prev -}}
+    <a href="{{ $prev.RelPermalink }}" title="{{ $linkTitle }}" class="os-pager-card os-pager-prev">
+      <span class="os-pager-label">
+        {{- partial "utils/icon.html" (dict "name" "chevron-right" "attributes" "class=\"os-pager-icon os-pager-icon-left\"") -}}
+        上一篇
+      </span>
+      <span class="os-pager-title">{{ $linkTitle }}</span>
+    </a>
+  {{- else -}}
+    <div></div>
+  {{- end -}}
+
+  {{- if $next -}}
+    {{- $linkTitle := partial "utils/title" $next -}}
+    <a href="{{ $next.RelPermalink }}" title="{{ $linkTitle }}" class="os-pager-card os-pager-next">
+      <span class="os-pager-label">
+        下一篇
+        {{- partial "utils/icon.html" (dict "name" "chevron-right" "attributes" "class=\"os-pager-icon\"") -}}
+      </span>
+      <span class="os-pager-title">{{ $linkTitle }}</span>
+    </a>
+  {{- else -}}
+    <div></div>
+  {{- end -}}
+</div>
+{{- end -}}

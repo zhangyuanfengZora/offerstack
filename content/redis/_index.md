@@ -2,6 +2,8 @@
 title: Redis
 weight: 3
 next: /redis/data-structure
+cascade:
+  type: docs
 ---
 
 ## 📌 章节概览

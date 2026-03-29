@@ -2,6 +2,8 @@
 title: MySQL
 weight: 2
 next: /mysql/index
+cascade:
+  type: docs
 ---
 
 ## 📌 章节概览

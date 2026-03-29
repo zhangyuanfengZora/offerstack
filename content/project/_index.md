@@ -2,6 +2,8 @@
 title: 项目实战
 weight: 6
 next: /project/star
+cascade:
+  type: docs
 ---
 
 ## 📌 章节概览

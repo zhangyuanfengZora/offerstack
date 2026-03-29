@@ -2,6 +2,8 @@
 title: 计算机基础
 weight: 4
 next: /cs/network
+cascade:
+  type: docs
 ---
 
 ## 📌 章节概览

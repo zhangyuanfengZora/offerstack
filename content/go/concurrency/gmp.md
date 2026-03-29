@@ -1,6 +1,6 @@
 ---
-title: GMP 调度模型
-weight: 2
+title: 1. GMP 调度模型
+weight: 1
 ---
 
 ## GMP 模型概述

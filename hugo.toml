@@ -10,6 +10,9 @@ enableGitInfo = true
   description = "Go · MySQL · Redis · 计算机基础 · AI专题 · 项目实战"
   images = []
 
+  [params.theme]
+    displayToggle = false
+
   [params.navbar]
     displayTitle = true
     displayLogo = true
@@ -24,25 +27,38 @@ enableGitInfo = true
     width = "normal"
 
   [params.footer]
-    displayCopyright = true
-    displayPoweredBy = true
+    displayCopyright = false
+    displayPoweredBy = false
     width = "normal"
+
+copyright = "OfferStack"
 
   displayUpdatedDate = true
   dateFormat = "2006-01-02"
 
   [params.search]
-    enable = true
-    type = "flexsearch"
-    [params.search.flexsearch]
-      index = "content"
+    enable = false
 
   [params.highlight]
-    copy = true
     copyNotation = "icon"
+    [params.highlight.copy]
+      enable = true
 
   [params.comments]
-    enable = false
+    enable = true
+    type = "giscus"
+
+    [params.comments.giscus]
+      repo = "zhangyuanfengZora/offerstack"
+      repoId = "R_kgDORzmp-Q"
+      category = "General"
+      categoryId = "DIC_kwDORzmp-c4C5g5V"
+      mapping = "pathname"
+      strict = "0"
+      reactionsEnabled = "1"
+      emitMetadata = "0"
+      inputPosition = "bottom"
+      lang = "zh-CN"
 
 # 顶部导航菜单
 [[menu.main]]
@@ -77,10 +93,16 @@ enableGitInfo = true
 
 [[menu.main]]
   name = "GitHub"
-  url = "https://github.com"
+  url = "https://github.com/zhangyuanfengZora/offerstack"
   weight = 7
   [menu.main.params]
     icon = "github"
+
+[[menu.main]]
+  name = "theme-toggle"
+  weight = 8
+  [menu.main.params]
+    type = "theme-toggle"
 
 [markup]
   [markup.highlight]
