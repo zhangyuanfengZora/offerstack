@@ -11,8 +11,7 @@ layout: hextra-home
   <div class="os-author-body">
     <p class="os-author-title">OfferStack</p>
     <p class="os-author-desc">
-      这是一份通俗易懂、深入原理的技术面试指南，内容涵盖 Go 语言、MySQL、Redis、计算机基础、AI 应用（RAG+Agent）与项目实战等核心知识点。<br/>
-      学技术，就认准 OfferStack
+      这是一份通俗易懂、深入原理的技术面试指南，内容涵盖 Go 语言、MySQL、Redis、计算机基础、AI 应用（RAG+Agent）与项目实战等核心知识点。
     </p>
   </div>
 </div>
