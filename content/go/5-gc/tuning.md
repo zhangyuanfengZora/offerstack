@@ -33,32 +33,99 @@ debug.SetGCPercent(500) // 表示堆大小超过上次标记的500%时触发GC
 
 有GC机制的话，内存泄漏其实是预期的能很快被释放的内存其生命期意外地被延长，导致预计能够立即回收的内存而长时间得不到回收。
 
-**Go语言主要有以下两种**：
+## Q: 内存泄漏的场景有哪些？
 
-1. **内存被根对象引用而没有得到迅速释放**：比如某个局部变量被赋值到了一个全局变量map中
-
-2. **goroutine 泄漏**：一些不当的使用，导致goroutine不能正常退出，也会造成内存泄漏
-
+### 1. **全局变量持有引用**
 ```go
-// 内存泄漏示例1：全局变量持有引用
-var globalMap = make(map[string]*BigStruct)
+var globalCache = make(map[string]*BigData)
 
-func processData(key string) {
-    data := &BigStruct{...}
-    globalMap[key] = data  // data被全局变量引用，无法回收
-    // 忘记在适当时候删除：delete(globalMap, key)
+func processRequest(id string) {
+    data := &BigData{...}
+    globalCache[id] = data  // 被全局变量引用，永远不会被GC
+    // 忘记清理：delete(globalCache, id)
 }
+```
 
-// 内存泄漏示例2：goroutine泄漏
-func leakGoroutine() {
+### 2. **Goroutine泄漏**
+```go
+// 场景1：Channel永远阻塞
+func leakByChannel() {
     ch := make(chan int)
     go func() {
-        // 这个goroutine会永远阻塞，造成泄漏
-        <-ch
+        <-ch  // 永远等待，goroutine泄漏
     }()
     // 函数返回，但goroutine仍在运行
 }
+
+// 场景2：无限循环
+func leakByLoop() {
+    go func() {
+        for {
+            // 没有退出条件的循环
+            time.Sleep(time.Second)
+        }
+    }()
+}
 ```
+
+### 3. **闭包引用大对象**
+```go
+func createHandler() func() {
+    bigData := make([]byte, 1024*1024) // 1MB数据
+    return func() {
+        // 闭包持有bigData引用，即使只用了一小部分
+        fmt.Println(len(bigData))
+    }
+}
+```
+
+### 4. **定时器未停止**
+```go
+func leakByTimer() {
+    ticker := time.NewTicker(time.Second)
+    go func() {
+        for range ticker.C {
+            // 处理逻辑
+        }
+    }()
+    // 忘记调用：ticker.Stop()
+}
+```
+
+### 5. **切片容量过大**
+```go
+func processLargeSlice() []int {
+    large := make([]int, 1000000)
+    // 只返回前10个元素，但整个底层数组无法回收
+    return large[:10]
+}
+
+// 正确做法：复制需要的部分
+func processLargeSliceCorrect() []int {
+    large := make([]int, 1000000)
+    result := make([]int, 10)
+    copy(result, large[:10])
+    return result  // large可以被回收
+}
+```
+
+### 6. **文件/连接未关闭**
+```go
+func leakByResource() {
+    file, _ := os.Open("large.txt")
+    // 忘记关闭：defer file.Close()
+    
+    conn, _ := net.Dial("tcp", "example.com:80")
+    // 忘记关闭：defer conn.Close()
+}
+```
+
+**预防策略**：
+- 及时清理全局容器中的引用
+- 为goroutine设置退出机制
+- 使用context控制goroutine生命周期  
+- 记得关闭资源（文件、连接、定时器）
+- 使用内存分析工具定期检查
 
 ## Q: Go 的 GC 如何调优？
 

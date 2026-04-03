@@ -1,5 +1,5 @@
 ---
-title: 4. Channel 通道
+title: 4. Channel
 weight: 4
 ---
 
@@ -57,27 +57,96 @@ ch1 := make(chan int)
 ch2 := make(chan int, 3)
 ```
 
+## Q: 有缓冲和无缓冲Channel的使用场景？
+
+### 无缓冲Channel使用场景
+1. **同步协调**：需要确保两个goroutine在某个时间点同步
+2. **握手通信**：一对一的精确协调，确保数据被接收后才继续
+3. **流量控制**：严格控制处理速度，防止生产者过快
+
+```go
+// 同步等待goroutine完成
+done := make(chan bool)
+go func() {
+    // 执行任务
+    fmt.Println("任务完成")
+    done <- true  // 发送完成信号
+}()
+<-done  // 等待任务完成
+```
+
+### 有缓冲Channel使用场景  
+1. **生产者消费者模式**：允许生产者和消费者速度不匹配
+2. **批量处理**：收集一批数据后统一处理
+3. **削峰填谷**：缓解突发流量压力
+4. **工作池模式**：限制并发数量
+
+```go
+// 限制并发数量的工作池
+jobs := make(chan int, 100)    // 任务队列
+workers := make(chan bool, 10) // 最多10个工作者
+
+// 生产者可以快速发送任务
+for i := 0; i < 1000; i++ {
+    jobs <- i
+}
+
+// 工作者按自己的节奏处理
+for job := range jobs {
+    workers <- true  // 获取工作许可
+    go func(j int) {
+        defer func() { <-workers }()  // 释放许可
+        // 处理任务
+    }(job)
+}
+```
+
 ## Q: Channel内存分配在哪里？
 
 Channel是分配到**堆**上面的，因为channel设计就是用来实现协程之间的通信，作用域和生命周期不可能只是局限于某个函数，所以将它分配到堆上面。
 
-## Q: Channel和Mutex的区别？
+## Q: 已经有了Channel了为什么还需要Mutex？
 
-| 对比项 | Channel | Mutex |
-|--------|---------|--------|
-| **用途** | 数据传递和同步 | 保护共享资源 |
-| **通信方式** | 通过通信共享数据 | 通过共享内存通信 |
-| **阻塞性** | 可以阻塞等待 | 获取锁时阻塞 |
+虽然Go推崇"通过通信来共享数据"的Channel模式，但Mutex在某些场景下仍然是必需的：
 
-**适用场景**：
+### Channel适合的场景
+- **数据传递**：goroutine之间传递数据
+- **任务分发**：生产者-消费者模式
+- **事件通知**：信号传递和同步
 
-### Channel
-1. **数据传递和同步**：当多个 goroutine 需要传递数据时，使用 channel 可以简化同步过程
-2. **生产者-消费者模式**：生产者把数据放入 channel，消费者从 channel 获取数据，保证数据传递和同步
+### Mutex更适合的场景
 
-### Mutex
-1. **保护共享资源**：当多个 goroutine 需要访问同一个共享资源时，使用 Mutex 可以防止并发访问引起的数据竞争
-2. **复杂并发场景**：在一些需要细粒度控制的并发场景下，Mutex 可以用来保护多个共享资源，确保资源的安全访问
+1. **保护共享状态**：多个goroutine需要读写同一个变量
+```go
+type Counter struct {
+    mu    sync.Mutex
+    value int
+}
+func (c *Counter) Add() {
+    c.mu.Lock()
+    c.value++  // 直接修改共享状态
+    c.mu.Unlock()
+}
+```
+
+2. **性能考虑**：简单的共享状态保护，Mutex比Channel开销更小
+
+3. **复杂数据结构**：保护整个数据结构的一致性
+```go
+type Cache struct {
+    mu   sync.RWMutex
+    data map[string]interface{}
+}
+func (c *Cache) Get(key string) interface{} {
+    c.mu.RLock()         // 读锁
+    defer c.mu.RUnlock()
+    return c.data[key]   // 直接访问共享数据
+}
+```
+
+4. **细粒度控制**：需要精确控制临界区范围
+
+**总结**：Channel用于通信，Mutex用于保护。选择原则是"能用Channel就用Channel，需要保护共享状态时用Mutex"。
 
 ## Q: Channel在什么情况下会引起内存泄漏？
 
