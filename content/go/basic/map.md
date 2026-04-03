@@ -43,15 +43,50 @@ type hmap struct {
 
 ## Q: Map 是并发安全的吗？
 
-❌ **不是**，map 不是线程安全的。map底层有一个flags标志位，在查找、赋值、遍历、删除过程中都会检测写标志，一旦发现写标志置位（等于1），则直接 panic。
+❌ **不是**，map 不是线程安全的。map底层有一个flags标志位，在查找、赋值、遍历、删除过程中都会检测写标志，一旦发现写标志置位（等于1），则直接抛出 **fatal error**。
 
 **解决方案：**
 1. 使用 `sync.Mutex` 加锁
 2. 使用 `sync.RWMutex` 读写锁  
 3. 使用 `sync.Map`（适合读多写少场景）
 
+## Q: 为什么Map并发冲突是fatal error而不是panic？
+
+**fatal error** 和 **panic** 的区别：
+
+| 类型 | 可恢复性 | 处理方式 | 使用场景 |
+|------|----------|----------|----------|
+| **panic** | 可通过 `recover()` 恢复 | 程序可以继续运行 | 程序逻辑错误，如数组越界 |
+| **fatal error** | 不可恢复 | 程序直接终止 | 运行时系统级错误 |
+
+**Map使用fatal error的原因**：
+
+1. **数据竞争的严重性**：并发读写map可能导致数据结构损坏，继续运行会产生不可预测的结果
+2. **内存安全**：损坏的map可能导致内存越界访问，威胁程序安全
+3. **设计哲学**：Go认为并发安全是程序员的责任，违反这一原则应该立即终止程序
+
 ```go
-// 使用互斥锁保护 map
+// 并发访问map会触发fatal error
+func concurrentMapAccess() {
+    m := make(map[int]int)
+    
+    // 并发写入
+    go func() {
+        for i := 0; i < 1000; i++ {
+            m[i] = i  // 可能触发: fatal error: concurrent map writes
+        }
+    }()
+    
+    go func() {
+        for i := 0; i < 1000; i++ {
+            m[i] = i  // 可能触发: fatal error: concurrent map writes
+        }
+    }()
+    
+    time.Sleep(time.Second)
+}
+
+// 正确的并发安全方式
 type SafeMap struct {
     mu sync.RWMutex
     m  map[string]int
@@ -70,3 +105,7 @@ func (sm *SafeMap) Set(key string, val int) {
     sm.m[key] = val
 }
 ```
+
+{{% callout type="warning" %}}
+**重要提醒**：fatal error 无法通过 `recover()` 捕获，程序会直接退出。这是Go故意设计的，强制开发者正确处理并发安全问题。
+{{% /callout %}}
